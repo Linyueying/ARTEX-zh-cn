@@ -44,6 +44,13 @@ docker compose version >/dev/null 2>&1 || die "未找到 docker compose 插件�
 command -v git >/dev/null 2>&1 || die "未找到 git。"
 command -v curl >/dev/null 2>&1 || die "未找到 curl。"
 
+# docker-compose.override.yml 里用了 `!override` 标签（整体替换 ports），需 compose >= 2.24.0
+CV="$(docker compose version --short 2>/dev/null | tr -d 'v' || true)"
+if [ -n "$CV" ] && [ "$(printf '%s\n2.24.0\n' "$CV" | sort -V | head -1)" != "2.24.0" ]; then
+  die "docker compose 版本 ${CV} 过旧（需 >= 2.24.0，override 用到 !override 标签）。
+    请升级 compose，或删掉 docker-compose.override.yml 里的 ports 段后重试。"
+fi
+
 case "$(uname -m)" in
   x86_64|amd64)  ARCH=amd64 ;;
   aarch64|arm64) ARCH=arm64 ;;

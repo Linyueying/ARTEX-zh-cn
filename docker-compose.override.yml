@@ -4,11 +4,15 @@
 #   1) 把 artex 服务指向汉化镜像 —— 默认用本地构建的 artex-zh:local；
 #      想用预编译镜像就把 ARTEX_ZH_IMAGE 设成 ghcr.io/linyueying/artex-zh-cn:latest
 #      （写进 .env 即可，install-zh.sh 会自动写）。
-#   2) 加 host.docker.internal —— 容器里的 127.0.0.1 是它自己，要访问宿主上的
+#   2) 端口改为可配置（ARTEX_PORT，默认 8787）；8788 是流量录制代理，只绑本机。
+#   3) 加 host.docker.internal —— 容器里的 127.0.0.1 是它自己，要访问宿主上的
 #      服务（如 LLM 反代 127.0.0.1:7863）必须走 host-gateway。
 #      不需要的话删掉 extra_hosts 两行即可，无副作用。
 #
-# 其余（postgres、端口、卷、环境变量）沿用 docker-compose.yml。
+# 其余（postgres、卷、环境变量）沿用 docker-compose.yml。
+#
+# 注意：ports 用了 compose 的 `!override` 标签（整体替换而非追加），
+# 需要 docker compose >= 2.24.0。老版本请删掉下面 ports 段。
 #
 # 回滚成官方版：删掉本文件，然后
 #   docker compose up -d --force-recreate artex
@@ -17,5 +21,8 @@ services:
     image: ${ARTEX_ZH_IMAGE:-artex-zh:local}
     # 默认 pull_policy=missing：本地已有该镜像就不拉，没有才拉。
     # 本地构建（artex-zh:local）与 GHCR 预编译镜像两种用法都适配。
+    ports: !override
+      - "${ARTEX_PORT:-8787}:8787"
+      - "127.0.0.1:8788:8788"
     extra_hosts:
       - "host.docker.internal:host-gateway"
