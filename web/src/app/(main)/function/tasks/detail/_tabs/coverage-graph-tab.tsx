@@ -42,7 +42,7 @@ const kindMeta: Record<Kind, KindMeta> = {
   subdomain: { label: "子域名", icon: Waypoints, iconBg: "bg-blue-500", hex: "#3b82f6", size: 30 },
   ip: { label: "IP", icon: Server, iconBg: "bg-cyan-600", hex: "#0891b2", size: 28 },
   service: { label: "服务", icon: Radio, iconBg: "bg-amber-500", hex: "#f59e0b", size: 26 },
-  app: { label: "App", icon: AppWindow, iconBg: "bg-fuchsia-500", hex: "#d946ef", size: 26 },
+  app: { label: "应用", icon: AppWindow, iconBg: "bg-fuchsia-500", hex: "#d946ef", size: 26 },
   endpoint: { label: "端点", icon: Link2, iconBg: "bg-rose-500", hex: "#f43f5e", size: 20 },
 };
 
@@ -367,7 +367,7 @@ function AssetSheet({
                   </DetailRow>
                   <DetailRow label="标题">{node.page_title}</DetailRow>
                   <DetailRow label="状态码">{node.status_code ? node.status_code : undefined}</DetailRow>
-                  <DetailRow label="App">{node.app_name}</DetailRow>
+                  <DetailRow label="应用">{node.app_name}</DetailRow>
                   <DetailRow label="资产ID">
                     {node.asset_id ? <span className="font-mono text-xs">{node.asset_id}</span> : undefined}
                   </DetailRow>

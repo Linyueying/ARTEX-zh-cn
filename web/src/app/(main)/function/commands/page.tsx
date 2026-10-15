@@ -362,7 +362,7 @@ export default function CommandsPage() {
               </SheetHeader>
               <div className="grid min-h-0 flex-1 grid-rows-2 divide-y">
                 <div className="flex min-h-0 min-w-0 flex-col">
-                  <div className="border-b px-5 py-2 text-xs font-medium text-muted-foreground">输入 Input</div>
+                  <div className="border-b px-5 py-2 text-xs font-medium text-muted-foreground">输入</div>
                   <div className="min-h-0 flex-1 overflow-auto">
                     <pre className="p-5 font-mono text-xs break-all whitespace-pre-wrap">
                       {toolInput(selected.command)}
@@ -370,7 +370,7 @@ export default function CommandsPage() {
                   </div>
                 </div>
                 <div className="flex min-h-0 min-w-0 flex-col">
-                  <div className="border-b px-5 py-2 text-xs font-medium text-muted-foreground">输出 Output</div>
+                  <div className="border-b px-5 py-2 text-xs font-medium text-muted-foreground">输出</div>
                   <div className="min-h-0 flex-1 overflow-auto">
                     <pre
                       className={cn(

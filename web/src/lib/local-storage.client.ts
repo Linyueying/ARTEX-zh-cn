@@ -5,7 +5,7 @@ export function setLocalStorageValue(key: string, value: string) {
     window.localStorage.setItem(key, value);
   } catch (error) {
     if (process.env.NODE_ENV !== "production") {
-      console.error("[localStorage] Failed to write value:", error);
+      console.error("[localStorage] 写入失败：", error);
     }
   }
 }

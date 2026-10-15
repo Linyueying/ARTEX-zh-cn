@@ -852,7 +852,7 @@ export default function SkillsPage() {
                 )}
                 <div className="mt-2 flex flex-wrap gap-2">
                   {selectedSkill.license && (
-                    <Badge variant="outline" className="text-xs font-normal">License: {selectedSkill.license}</Badge>
+                    <Badge variant="outline" className="text-xs font-normal">许可证：{selectedSkill.license}</Badge>
                   )}
                   {selectedSkill.compatibility && (
                     <Badge variant="secondary" className="text-xs font-normal">{selectedSkill.compatibility}</Badge>
@@ -1054,11 +1054,11 @@ export default function SkillsPage() {
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div className="grid gap-1.5">
-                  <Label className="text-muted-foreground text-xs">license</Label>
-                  <Input placeholder="MIT / Proprietary" value={newLicense} onChange={(e) => setNewLicense(e.target.value)} />
+                  <Label className="text-muted-foreground text-xs">许可证</Label>
+                  <Input placeholder="MIT / 专有许可" value={newLicense} onChange={(e) => setNewLicense(e.target.value)} />
                 </div>
                 <div className="grid gap-1.5">
-                  <Label className="text-muted-foreground text-xs">compatibility</Label>
+                  <Label className="text-muted-foreground text-xs">兼容性</Label>
                   <Input placeholder="需要 sqlmap、python3" value={newCompat} onChange={(e) => setNewCompat(e.target.value)} />
                 </div>
               </div>

@@ -277,7 +277,7 @@ export default function LLMRecordsPage() {
           />
         </div>
         <Input
-          placeholder="Model"
+          placeholder="模型"
           className="h-8 w-48"
           value={model}
           onChange={(e) => setModel(e.target.value)}
@@ -383,10 +383,10 @@ export default function LLMRecordsPage() {
                   <TableHead className="w-[130px]">时间</TableHead>
                   <TableHead className="w-[60px]">任务</TableHead>
                   <TableHead className="w-[90px]">Worker</TableHead>
-                  <TableHead className="w-[100px]">Profile</TableHead>
-                  <TableHead className="w-[140px]">Model</TableHead>
+                  <TableHead className="w-[100px]">配置档</TableHead>
+                  <TableHead className="w-[140px]">模型</TableHead>
                   <TableHead className="w-[70px]">延迟</TableHead>
-                  <TableHead className="w-[90px]">Tokens</TableHead>
+                  <TableHead className="w-[90px]">Token</TableHead>
                   <TableHead className="w-[60px]">状态</TableHead>
                 </TableRow>
               </TableHeader>
@@ -442,9 +442,9 @@ export default function LLMRecordsPage() {
                       </TableCell>
                       <TableCell>
                         {rec.status === "ok" ? (
-                          <Badge variant="secondary" className="text-xs text-emerald-600">OK</Badge>
+                          <Badge variant="secondary" className="text-xs text-emerald-600">成功</Badge>
                         ) : (
-                          <Badge variant="destructive" className="text-xs">Error</Badge>
+                          <Badge variant="destructive" className="text-xs">失败</Badge>
                         )}
                       </TableCell>
                     </TableRow>
@@ -481,9 +481,9 @@ export default function LLMRecordsPage() {
                 {fmtLatency(selected.latency_ms)}
               </span>
               {selected.status === "ok" ? (
-                <Badge variant="secondary" className="text-xs text-emerald-600">OK</Badge>
+                <Badge variant="secondary" className="text-xs text-emerald-600">成功</Badge>
               ) : (
-                <Badge variant="destructive" className="text-xs">Error</Badge>
+                <Badge variant="destructive" className="text-xs">失败</Badge>
               )}
               {/* 原文视图开关。旧记录没有原文，此时禁用而非静默回退，避免看着像
                   「原文与解析一致」。 */}
@@ -510,7 +510,7 @@ export default function LLMRecordsPage() {
             <div className="grid min-h-0 flex-1 grid-cols-2 divide-x">
               <div className="flex min-h-0 min-w-0 flex-col">
                 <div className="flex items-center gap-2 border-b py-0.5 pr-1.5 pl-3 text-[11px] font-medium text-muted-foreground">
-                  <span>Request{showRaw && " · 原文"}</span>
+                  <span>请求{showRaw && " · 原文"}</span>
                   <CopyButton text={reqText || ""} />
                 </div>
                 <div className="min-h-0 flex-1 overflow-auto">
@@ -528,7 +528,7 @@ export default function LLMRecordsPage() {
               </div>
               <div className="flex min-h-0 min-w-0 flex-col">
                 <div className="flex items-center gap-2 border-b py-0.5 pr-1.5 pl-3 text-[11px] font-medium text-muted-foreground">
-                  <span>Response{showRaw && " · 原文（SSE）"}</span>
+                  <span>响应{showRaw && " · 原文（SSE）"}</span>
                   <CopyButton text={respText || ""} />
                 </div>
                 <div className="min-h-0 flex-1 overflow-auto">

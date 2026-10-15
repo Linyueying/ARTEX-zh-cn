@@ -262,7 +262,7 @@ func New(ctx context.Context, m *Manager, skillDir string, dataDir string, keyDi
 			log.Printf("[engine] LLM configured from env: %s / %s", cfg.Provider(), cfg.Model)
 		}
 	} else {
-		log.Printf("[engine] no LLM provider configured — engine idle until set via /api/llm or env")
+		log.Printf("[engine] 未配置 LLM 提供方 — 引擎空闲，需通过 /api/llm 或环境变量设置")
 	}
 	s.restoreTaskRuntimes()
 	go s.reconcileConcurrency()

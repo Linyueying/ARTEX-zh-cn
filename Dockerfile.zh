@@ -1,0 +1,11 @@
+# 汉化版运行镜像：复用官方镜像的全部运行时依赖（nmap/playwright/chromium 等），
+# 只替换 /app/artex 这一个二进制（内含重新构建的汉化前端）。
+# 这样不必重跑官方 Dockerfile 里的 apt/npm/playwright 安装（那要下载 1~2 GB）。
+#
+# 基镜像按 digest 钉死（= v0.3.21 那次构建）。用浮动 tag 的话，上游把 latest
+# 指向新版本后重建会得到「新运行时 + 旧二进制」的错配镜像。
+FROM ruoji6/artex:latest@sha256:5c550744ac2e0e2693d0ef8d8e6b53caa945f2f08e6e9169df347e0aac5423a0
+
+ARG TARGETARCH=amd64
+COPY dist/${TARGETARCH}/artex /app/artex
+RUN chmod +x /app/artex

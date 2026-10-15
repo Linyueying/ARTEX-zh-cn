@@ -400,7 +400,7 @@ func NewManager(dir, proxyAddr string) (*Manager, error) {
 		if tr != nil {
 			m.traffic = tr
 			go func() {
-				log.Printf("[traffic] recording proxy on %s (set HTTP_PROXY=%s + trust _ca CA)", proxyAddr, tr.ProxyAddr())
+				log.Printf("[traffic] 录制代理监听 %s（设置 HTTP_PROXY=%s 并信任 _ca CA）", proxyAddr, tr.ProxyAddr())
 				if err := tr.Start(); err != nil {
 					log.Printf("[traffic] proxy stopped: %v", err)
 				}

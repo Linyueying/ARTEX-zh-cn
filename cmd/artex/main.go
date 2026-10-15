@@ -120,7 +120,7 @@ func run() int {
 	}
 
 	go func() {
-		log.Printf("ARTEX %s backend listening on %s (data=%s, workers=%d)", version, *addr, *dataDir, mgr.Workers())
+		log.Printf("ARTEX %s 后端监听 %s（数据目录=%s，workers=%d）", version, *addr, *dataDir, mgr.Workers())
 		if err := httpSrv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			log.Fatalf("serve: %v", err)
 		}
@@ -137,7 +137,7 @@ func run() int {
 		shutdown(agent.AbortShutdown)
 	}
 
-	log.Println("shutting down...")
+	log.Println("正在关闭…")
 	shutdownCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	_ = httpSrv.Shutdown(shutdownCtx)

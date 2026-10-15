@@ -48,7 +48,7 @@ export function BasicAuthCard() {
       setUsername(settings.username);
       setPasswordSet(settings.password_set);
       setPassword("");
-      toast.success(settings.enabled ? "HTTP Basic Auth 已开启，当前浏览器保持访问" : "HTTP Basic Auth 已关闭");
+      toast.success(settings.enabled ? "HTTP 基础认证已开启，当前浏览器保持访问" : "HTTP 基础认证已关闭");
     } catch (e) {
       setError(`保存失败：${(e as Error).message}`);
     } finally {
@@ -61,7 +61,7 @@ export function BasicAuthCard() {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <ShieldCheckIcon className="size-4" />
-          HTTP Basic Auth
+          HTTP 基础认证
         </CardTitle>
         <CardDescription>
           开启后，访客需先通过浏览器原生账号密码验证，再进入 ARTEX 登录页。默认关闭，保存后立即生效。

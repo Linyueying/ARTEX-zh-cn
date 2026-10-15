@@ -77,9 +77,9 @@ type Health = { label: string; cls: string; hint?: string };
 function healthOf(p: LLMProfile, m?: LLMPoolMember): Health {
   if (!p.api_key_hint) {
     return {
-      label: "未配置 Key",
+      label: "未配置密钥",
       cls: "border-muted-foreground/40 text-muted-foreground",
-      hint: "未填 API Key，无法调用",
+      hint: "未填 API 密钥，无法调用",
     };
   }
   if (m?.state === "tripped") {
@@ -165,7 +165,7 @@ function PoolSheet({
             <ZapIcon className="size-4" /> LLM 轮询 · 故障转移
           </SheetTitle>
           <SheetDescription>
-            开启后，<b>未指定模型</b>的 Agent 在当前配置不可用（余额不足 / Key 失效 / 限流 /
+            开启后，<b>未指定模型</b>的 Agent 在当前配置不可用（余额不足 / 密钥失效 / 限流 /
             服务异常）时自动切到下一个配置。
           </SheetDescription>
         </SheetHeader>
@@ -215,7 +215,7 @@ function PoolSheet({
                 </div>
                 {inChain.length < 2 && (
                   <p className="text-muted-foreground text-xs">
-                    当前只有 {inChain.length} 个可用配置，轮询不会生效——至少需要 2 个已填 API Key 且参与轮询的配置。
+                    当前只有 {inChain.length} 个可用配置，轮询不会生效——至少需要 2 个已填 API 密钥且参与轮询的配置。
                   </p>
                 )}
                 {chain.map((m) => {
@@ -595,7 +595,7 @@ function ProfileSheet({
           </div>
 
           <div className="grid gap-2">
-            <Label htmlFor="p-api-key">API Key</Label>
+            <Label htmlFor="p-api-key">API 密钥</Label>
             <Input
               id="p-api-key"
               type="password"

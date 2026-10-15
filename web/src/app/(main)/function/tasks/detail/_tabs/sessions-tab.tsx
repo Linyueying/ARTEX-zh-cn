@@ -202,7 +202,7 @@ const TokenMetrics = React.forwardRef<
     labels?: "short" | "long";
   }
 >(({ input, cache, output, labels = "short", className, ...props }, ref) => {
-  const names = labels === "short" ? ["入", "缓", "出"] : ["input", "cache", "output"];
+  const names = labels === "short" ? ["入", "缓", "出"] : ["输入", "缓存", "输出"];
   const values = [input, cache, output];
   return (
     <span
@@ -236,7 +236,7 @@ function fmtDuration(ms: number): string {
 const roleMeta = {
   mainagent: { label: "主 Agent", icon: UserIcon },
   planner: { label: "规划 Planner", icon: BrainIcon },
-  worker: { label: "Workers", icon: RadioIcon },
+  worker: { label: "Worker", icon: RadioIcon },
   system: { label: "系统审计", icon: HistoryIcon },
 } as const;
 
@@ -326,7 +326,7 @@ function intentToSession(n: TaskNode): Session {
   return {
     id: n.id,
     role: "worker",
-    title: label || `Intent ${n.id}`,
+    title: label || `意图 ${n.id}`,
     status: state,
     live: !n.inherited && state === "running",
     last_activity: n.ts,
@@ -622,7 +622,7 @@ export function SessionsTab({ taskId }: { taskId: string }) {
           setCancelReason("");
         }
       } catch (error) {
-        toast.error(`Worker 操作失败：${(error as Error).message}`);
+        toast.error(`Worker操作失败：${(error as Error).message}`);
       } finally {
         setControllingIntent(null);
         setCancelIntent(null);
@@ -1152,7 +1152,7 @@ export function SessionsTab({ taskId }: { taskId: string }) {
   const sessionMeta = React.useMemo(() => {
     const map = new Map<string, { title: string; json: unknown; deleted: boolean; deleteReason: string }>();
     for (const node of allIntents) {
-      let title = `Intent ${node.id}`;
+      let title = `意图 ${node.id}`;
       let parsedPayload: unknown = node.payload;
       // 假删除:意图 state='deleted',删除原因在独立字段 delete_reason 上。
       const deleted = node.state === "deleted";
@@ -1536,7 +1536,7 @@ export function SessionsTab({ taskId }: { taskId: string }) {
         patchIntentState(intentId, result.state);
         setWorkerMessage("");
         setWorkerMessageRequestId("");
-        toast.success(`消息已发送给 Worker #${intentId}，已立即继续执行`);
+        toast.success(`消息已发送给Worker #${intentId}，已立即继续执行`);
       })
       .catch((error) => {
         toast.error(`发送失败：${(error as Error).message || "请稍后重试"}`);
@@ -1715,14 +1715,14 @@ export function SessionsTab({ taskId }: { taskId: string }) {
                         ) : (
                           <RotateCwIcon className="size-3.5" />
                         )}
-                        加载更早的 Worker
+                        加载更早的Worker
                       </button>
                     )}
                   </div>
                 );
               })}
               {mainLoaded && !workerSessions.length && (
-                <div className="px-2 py-1 text-xs text-muted-foreground">暂无运行中的 Worker 会话。</div>
+                <div className="px-2 py-1 text-xs text-muted-foreground">暂无运行中的Worker会话。</div>
               )}
             </div>
           </ScrollArea>
@@ -1740,7 +1740,7 @@ export function SessionsTab({ taskId }: { taskId: string }) {
                 const meta = isWorker ? sessionMeta.get(active.id) : undefined;
                 // Worker: the intent moved into the transcript as a message, so the
                 // header shows a stable generic label (intent JSON stays on hover).
-                const title = isWorker ? "Worker 执行会话" : active.title;
+                const title = isWorker ? "Worker执行会话" : active.title;
                 const titleEl = <span className="min-w-0 truncate text-sm font-medium">{title}</span>;
                 return meta?.json ? (
                   <Tooltip>
@@ -2008,8 +2008,8 @@ export function SessionsTab({ taskId }: { taskId: string }) {
                   <MentionTextarea
                     inputGroup
                     rows={1}
-                    aria-label={`给 Worker #${active.intent_id} 发消息`}
-                    placeholder={`给 Worker #${active.intent_id} 发消息，@ 引用记录，调整执行方向…`}
+                    aria-label={`给Worker #${active.intent_id} 发消息`}
+                    placeholder={`给Worker #${active.intent_id} 发消息，@ 引用记录，调整执行方向…`}
                     value={workerMessage}
                     onValueChange={(value) => {
                       setWorkerMessage(value);
@@ -2045,8 +2045,8 @@ export function SessionsTab({ taskId }: { taskId: string }) {
                         variant="destructive"
                         onClick={() => void controlWorker(active, "pause")}
                         disabled={controllingIntent === active.intent_id}
-                        title="暂停当前 Worker"
-                        aria-label="暂停当前 Worker"
+                        title="暂停当前Worker"
+                        aria-label="暂停当前Worker"
                       >
                         {controllingIntent === active.intent_id ? (
                           <Loader2Icon className="animate-spin" />
@@ -2112,7 +2112,7 @@ export function SessionsTab({ taskId }: { taskId: string }) {
         >
           <AlertDialogContent className="max-w-[min(32rem,calc(100vw-2rem))]">
             <AlertDialogHeader>
-              <AlertDialogTitle>删除 Worker #{cancelIntent?.intent_id}？</AlertDialogTitle>
+              <AlertDialogTitle>删除Worker #{cancelIntent?.intent_id}？</AlertDialogTitle>
               <AlertDialogDescription className="break-words whitespace-normal">
                 {deleteMode === "hard" ? (
                   <>

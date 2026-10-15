@@ -3,6 +3,7 @@
 import * as React from "react";
 
 import { format, subDays } from "date-fns";
+import { zhCN } from "date-fns/locale/zh-CN";
 import type { DateRange } from "react-day-picker";
 
 import { Button } from "@/components/ui/button";
@@ -22,14 +23,14 @@ export function DateRangePicker({ value, onChange }: DateRangePickerProps) {
     return { from, to };
   });
   const dateRange = value ?? internalDateRange;
-  let dateRangeLabel = "Select date";
+  let dateRangeLabel = "选择日期";
 
   if (dateRange?.from) {
-    dateRangeLabel = format(dateRange.from, "d MMM yyyy");
+    dateRangeLabel = format(dateRange.from, "yyyy-MM-dd", { locale: zhCN });
   }
 
   if (dateRange?.from && dateRange.to) {
-    dateRangeLabel = `${format(dateRange.from, "d MMM yyyy")} - ${format(dateRange.to, "d MMM yyyy")}`;
+    dateRangeLabel = `${format(dateRange.from, "yyyy-MM-dd", { locale: zhCN })} - ${format(dateRange.to, "yyyy-MM-dd", { locale: zhCN })}`;
   }
 
   const handleDateChange = (nextValue: DateRange | undefined) => {
@@ -49,6 +50,7 @@ export function DateRangePicker({ value, onChange }: DateRangePickerProps) {
       <PopoverContent className="w-auto overflow-hidden p-0" align="end">
         <Calendar
           mode="range"
+          locale={zhCN}
           defaultMonth={dateRange?.from}
           selected={dateRange}
           onSelect={handleDateChange}

@@ -1,0 +1,17 @@
+# 汉化版覆盖配置（compose 会自动加载本文件）。
+#
+# 把 artex 服务指向本地构建的汉化镜像 artex-zh:local，其余（postgres、端口、
+# 卷、环境变量）沿用 docker-compose.yml。
+#
+# 回滚：删掉本文件，然后
+#   cd /opt/artex && docker compose up -d --force-recreate artex
+# 即回到官方 ruoji6/artex:latest。
+services:
+  artex:
+    image: artex-zh:local
+    # 本地镜像不在任何 registry 上，禁用拉取，避免 docker compose pull/up 报错。
+    pull_policy: never
+    # 容器里的 127.0.0.1 是它自己；要访问宿主上的 WorkBuddy 反代
+    # (127.0.0.1:7863) 必须走 host-gateway。
+    extra_hosts:
+      - "host.docker.internal:host-gateway"

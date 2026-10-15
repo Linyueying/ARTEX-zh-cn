@@ -190,7 +190,7 @@ export default function SystemSettingsPage() {
       .then((s) => {
         apply(s);
         setBraveKeyInput("");
-        toast.success("已保存 Brave API Key");
+        toast.success("已保存 Brave API 密钥");
       })
       .catch((e) => toast.error("保存失败：" + (e as Error).message))
       .finally(() => setSavingKey(false));
@@ -203,7 +203,7 @@ export default function SystemSettingsPage() {
       .then((s) => {
         apply(s);
         setTavilyKeyInput("");
-        toast.success("已保存 Tavily API Key");
+        toast.success("已保存 Tavily API 密钥");
       })
       .catch((e) => toast.error("保存失败：" + (e as Error).message))
       .finally(() => setSavingTavilyKey(false));
@@ -445,8 +445,8 @@ export default function SystemSettingsPage() {
               <b>web_search</b>（仅返回标题/链接/摘要，不抓取正文；抓取由 WebFetch 负责）。网络搜索<b>不走</b>
               记录代理，独立于流量捕获。
               <br />
-              来源可选 <b>DuckDuckGo（ddgs）</b>（无需 Key）、<b>Brave（免费版）</b>（需填写 Brave API Key）、{" "}
-              <b>Tavily</b>（需填写 Tavily API Key）或 <b>DeepSeek</b>（复用当前 LLM 配置）。总开关关闭时，各
+              来源可选 <b>DuckDuckGo（ddgs）</b>（无需密钥）、<b>Brave（免费版）</b>（需填写 Brave API 密钥）、{" "}
+              <b>Tavily</b>（需填写 Tavily API 密钥）或 <b>DeepSeek</b>（复用当前 LLM 配置）。总开关关闭时，各
               Agent 的网络搜索开关不可用。
             </CardDescription>
           </CardHeader>
@@ -512,7 +512,7 @@ export default function SystemSettingsPage() {
             {webSearch && backend === "brave-free" && (
               <div className="flex flex-col gap-2">
                 <Label htmlFor="brave-key" className="text-sm font-normal text-muted-foreground">
-                  Brave Search API Key
+                  Brave 搜索 API 密钥
                   {braveKeySet && <span className="ml-2 text-xs text-emerald-500">已配置</span>}
                 </Label>
                 <div className="flex items-center gap-2">
@@ -520,7 +520,7 @@ export default function SystemSettingsPage() {
                     id="brave-key"
                     type="password"
                     autoComplete="off"
-                    placeholder={braveKeySet ? "已配置（留空则不变）" : "输入 Brave API Key"}
+                    placeholder={braveKeySet ? "已配置（留空则不变）" : "输入 Brave API 密钥"}
                     value={braveKeyInput}
                     disabled={!loaded || savingKey}
                     onChange={(e) => setBraveKeyInput(e.target.value)}
@@ -547,7 +547,7 @@ export default function SystemSettingsPage() {
             {webSearch && backend === "tavily" && (
               <div className="flex flex-col gap-2">
                 <Label htmlFor="tavily-key" className="text-sm font-normal text-muted-foreground">
-                  Tavily Search API Key
+                  Tavily 搜索 API 密钥
                   {tavilyKeySet && <span className="ml-2 text-xs text-emerald-500">已配置</span>}
                 </Label>
                 <div className="flex items-center gap-2">
@@ -555,7 +555,7 @@ export default function SystemSettingsPage() {
                     id="tavily-key"
                     type="password"
                     autoComplete="off"
-                    placeholder={tavilyKeySet ? "已配置（留空则不变）" : "输入 Tavily API Key（tvly-…）"}
+                    placeholder={tavilyKeySet ? "已配置（留空则不变）" : "输入 Tavily API 密钥（tvly-…）"}
                     value={tavilyKeyInput}
                     disabled={!loaded || savingTavilyKey}
                     onChange={(e) => setTavilyKeyInput(e.target.value)}
@@ -573,7 +573,7 @@ export default function SystemSettingsPage() {
                     已选择 Tavily 但尚未配置 Key —— 在保存 Key 之前，搜索工具不会启用。
                   </p>
                 )}
-                <p className="text-muted-foreground text-xs">前往 https://tavily.com 注册并获取 API Key。</p>
+                <p className="text-muted-foreground text-xs">前往 https://tavily.com 注册并获取 API 密钥。</p>
               </div>
             )}
 

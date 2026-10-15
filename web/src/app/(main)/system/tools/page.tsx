@@ -330,7 +330,7 @@ function ToolGridCard({ tool, onClick }: { tool: Tool; onClick: () => void }) {
         )}
         {tool.deferred && (
           <Badge variant="outline" className="px-1.5 py-0 text-[10px]">
-            deferred
+            延迟
           </Badge>
         )}
         {!tool.enabled && (
@@ -435,7 +435,7 @@ export default function ToolsPage() {
             <CardContent>
               {systemTools.length === 0 ? (
                 <p className="text-muted-foreground py-6 text-center text-sm">
-                  {query.trim() ? "没有匹配的系统工具" : "（暂无系统工具，等待后端 seed）"}
+                  {query.trim() ? "没有匹配的系统工具" : "（暂无系统工具，等待后端初始化）"}
                 </p>
               ) : (
                 <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -609,7 +609,7 @@ function CustomToolDialog({
 
   async function save() {
     if (isNew && !/^[a-z][a-z0-9_]*$/.test(key.trim())) {
-      toast.error("key 需小写字母开头，仅含小写字母/数字/下划线");
+      toast.error("标识需小写字母开头，仅含小写字母/数字/下划线");
       return;
     }
     let schema: Record<string, unknown> = {};
@@ -684,7 +684,7 @@ function CustomToolDialog({
 
         <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto px-4 pb-4">
           <div className="grid gap-1.5">
-            <Label className="text-xs">Key</Label>
+            <Label className="text-xs">标识</Label>
             <Input className="font-mono" placeholder="如 nmap_scan" value={key} disabled={!isNew}
               onChange={(e) => setKey(e.target.value)} />
           </div>
@@ -728,7 +728,7 @@ function CustomToolDialog({
             <div className="grid gap-2">
               <div className="flex gap-2">
                 <div className="grid gap-1.5">
-                  <Label className="text-xs">Method</Label>
+                  <Label className="text-xs">方法</Label>
                   <Input className="w-24" value={ex.method} onChange={(e) => setEx({ ...ex, method: e.target.value })} />
                 </div>
                 <div className="grid flex-1 gap-1.5">
@@ -737,12 +737,12 @@ function CustomToolDialog({
                 </div>
               </div>
               <div className="grid gap-1.5">
-                <Label className="text-xs">Headers（JSON，可含 {"{param}"}）</Label>
+                <Label className="text-xs">请求头（JSON，可含 {"{param}"}）</Label>
                 <Textarea className="font-mono text-xs" rows={2} value={ex.headers}
                   placeholder={'{"Authorization": "Bearer {token}"}'} onChange={(e) => setEx({ ...ex, headers: e.target.value })} />
               </div>
               <div className="grid gap-1.5">
-                <Label className="text-xs">Body（可含 {"{param}"}）</Label>
+                <Label className="text-xs">请求体（可含 {"{param}"}）</Label>
                 <Textarea className="font-mono text-xs" rows={2} value={ex.body} onChange={(e) => setEx({ ...ex, body: e.target.value })} />
               </div>
               <div className="flex items-center gap-4">
@@ -796,7 +796,7 @@ function CustomToolDialog({
             </label>
             {kind !== "shell" && (
               <label className="flex items-center gap-2 text-sm">
-                <Switch checked={deferred} onCheckedChange={setDeferred} /> deferred（大量不常用工具才开）
+                <Switch checked={deferred} onCheckedChange={setDeferred} /> 延迟（大量不常用工具才开）
               </label>
             )}
           </div>

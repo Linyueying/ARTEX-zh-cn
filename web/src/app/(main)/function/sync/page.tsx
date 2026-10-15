@@ -159,7 +159,7 @@ function DataSourceCard({
           <>
             {!status.configured && (
               <p className="text-amber-600 text-sm dark:text-amber-500">
-                数据源已创建但未配置，请填写 MCP 地址与 API Key 后启用。
+                数据源已创建但未配置，请填写 MCP 地址与 API 密钥后启用。
               </p>
             )}
             {status.configured && !status.enabled && (
@@ -171,7 +171,7 @@ function DataSourceCard({
                 <Input placeholder="http://<主机>:8082/mcp" value={url} onChange={(e) => setUrl(e.target.value)} />
               </div>
               <div className="space-y-1.5">
-                <Label>API Key（X-API-Key，留空保留原值）</Label>
+                <Label>API 密钥（X-API-Key，留空保留原值）</Label>
                 <Input
                   type="password"
                   placeholder="ssk_..."

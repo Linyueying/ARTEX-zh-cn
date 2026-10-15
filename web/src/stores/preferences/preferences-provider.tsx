@@ -115,6 +115,6 @@ export const PreferencesStoreProvider = ({
 
 export const usePreferencesStore = <T,>(selector: (state: PreferencesState) => T): T => {
   const store = useContext(PreferencesStoreContext);
-  if (!store) throw new Error("Missing PreferencesStoreProvider");
+  if (!store) throw new Error("缺少 PreferencesStoreProvider");
   return useStore(store, selector);
 };

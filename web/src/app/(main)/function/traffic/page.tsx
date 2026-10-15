@@ -453,14 +453,14 @@ export default function TrafficPage() {
           </PopoverContent>
         </Popover>
         <div className="relative w-48">
-          <Input placeholder="host…" value={host} onChange={(e) => setHost(e.target.value)} className="h-8" />
+          <Input placeholder="主机…" value={host} onChange={(e) => setHost(e.target.value)} className="h-8" />
         </div>
         <Button
           variant="destructive"
           size="sm"
           className="h-8"
           disabled={!hostQ || deleting}
-          title={hostQ ? undefined : "先在左侧选择目标或输入 host"}
+          title={hostQ ? undefined : "先在左侧选择目标或输入主机"}
           onClick={() => setDeleteMode("filter")}
         >
           <Trash2Icon className="size-3.5" />
@@ -644,7 +644,7 @@ export default function TrafficPage() {
                     onSort={toggleSort}
                     className="w-36"
                   />
-                  <TableHead className="w-44">host</TableHead>
+                  <TableHead className="w-44">主机</TableHead>
                   <TableHead className="w-20">方法</TableHead>
                   <TableHead>URL</TableHead>
                   <SortableHead
@@ -655,7 +655,7 @@ export default function TrafficPage() {
                     onSort={toggleSort}
                     className="w-20"
                   />
-                  <TableHead className="w-36">content-type</TableHead>
+                  <TableHead className="w-36">内容类型</TableHead>
                   <SortableHead
                     field="resp_len"
                     label="响应长度"
@@ -743,8 +743,8 @@ export default function TrafficPage() {
               </SheetHeader>
               <Tabs defaultValue="request" className="min-h-0 flex-1 gap-0">
                 <TabsList className="mx-5 mt-4 grid w-auto grid-cols-2">
-                  <TabsTrigger value="request">请求 Request</TabsTrigger>
-                  <TabsTrigger value="response">响应 Response</TabsTrigger>
+                  <TabsTrigger value="request">请求</TabsTrigger>
+                  <TabsTrigger value="response">响应</TabsTrigger>
                 </TabsList>
                 <TabsContent value="request" className="min-h-0 overflow-auto">
                   {detailLoading ? (
@@ -804,7 +804,7 @@ export default function TrafficPage() {
               )}
               {deleteMode === "filter" && (
                 <>
-                  将永久删除 host 包含 <span className="font-mono font-semibold">{hostQ}</span>{" "}
+                  将永久删除主机包含 <span className="font-mono font-semibold">{hostQ}</span>{" "}
                   的所有流量记录（含请求/响应原文），此操作不可撤销。
                 </>
               )}
