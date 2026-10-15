@@ -34,6 +34,7 @@ A 失败会自动落到 B，**不需要 Go / Node，也不重新编译**。
 | `ARTEX_ZH_RELEASE` | `zh-0.3.21` | Release 标签（B 路径用） |
 | `ARTEX_ZH_SKIP_PULL` | 空 | 设 `1` 跳过 A 路径，直接走 B |
 | `ARTEX_PORT` | `8787` | 对外端口 |
+| `ARTEX_PROXY_PORT` | `ARTEX_PORT + 1` | 流量录制代理端口（只绑 `127.0.0.1`） |
 | `POSTGRES_PASSWORD` | 随机 | 数据库密码 |
 
 装完立刻做两件事：

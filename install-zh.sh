@@ -22,6 +22,7 @@
 #   ARTEX_ZH_RELEASE=zh-0.3.21     Release 标签（B 路径用）
 #   ARTEX_ZH_SKIP_PULL=1           跳过 A 路径，直接走 B
 #   ARTEX_PORT=8787                对外端口（默认 8787）
+#   ARTEX_PROXY_PORT=8788          流量录制代理端口（默认 = ARTEX_PORT + 1，只绑 127.0.0.1）
 #   POSTGRES_PASSWORD=...          自带数据库密码（默认随机生成）
 # =============================================================================
 set -euo pipefail
@@ -32,6 +33,8 @@ DIR="${ARTEX_DIR:-/opt/artex-zh}"
 IMAGE="${ARTEX_ZH_IMAGE:-ghcr.io/linyueying/artex-zh-cn:${ARTEX_ZH_TAG:-latest}}"
 RELEASE_TAG="${ARTEX_ZH_RELEASE:-zh-0.3.21}"
 PORT="${ARTEX_PORT:-8787}"
+# 流量录制代理端口：默认 8787+1（同一台机器上跑第二份实例时不会撞车）
+PROXY_PORT="${ARTEX_PROXY_PORT:-$((PORT + 1))}"
 
 info() { printf '\033[36m[*]\033[0m %s\n' "$*"; }
 ok()   { printf '\033[32m[+]\033[0m %s\n' "$*"; }
@@ -98,23 +101,26 @@ if [ ! -f .env ]; then
     POSTGRES_PASSWORD="$(head -c 18 /dev/urandom | base64 | tr -dc 'A-Za-z0-9' | head -c 24)"
   fi
   if command -v python3 >/dev/null 2>&1; then
-    python3 - "$POSTGRES_PASSWORD" "$ZH_IMAGE" "$PORT" <<'PY'
+    python3 - "$POSTGRES_PASSWORD" "$ZH_IMAGE" "$PORT" "$PROXY_PORT" <<'PY'
 import re, sys, pathlib
-pw, image, port = sys.argv[1], sys.argv[2], sys.argv[3]
+pw, image, port, proxy = sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4]
 p = pathlib.Path('.env'); s = p.read_text(encoding='utf-8')
 s = re.sub(r'(?m)^POSTGRES_PASSWORD=.*$', 'POSTGRES_PASSWORD=' + pw, s)
 if re.search(r'(?m)^#? ?ARTEX_ZH_IMAGE=', s):
     s = re.sub(r'(?m)^#? ?ARTEX_ZH_IMAGE=.*$', 'ARTEX_ZH_IMAGE=' + image, s)
 else:
     s += '\nARTEX_ZH_IMAGE=' + image + '\n'
-if port != '8787':
+if port != '8787' or proxy != '8788':
     s += 'ARTEX_PORT=' + port + '\n'
+    s += 'ARTEX_PROXY_PORT=' + proxy + '\n'
 p.write_text(s, encoding='utf-8')
 PY
   else
     sed -i "s|^POSTGRES_PASSWORD=.*|POSTGRES_PASSWORD=${POSTGRES_PASSWORD}|" .env
     sed -i "s|^# ARTEX_ZH_IMAGE=.*|ARTEX_ZH_IMAGE=${ZH_IMAGE}|" .env
-    [ "$PORT" != "8787" ] && echo "ARTEX_PORT=${PORT}" >> .env
+    if [ "$PORT" != "8787" ] || [ "$PROXY_PORT" != "8788" ]; then
+      printf 'ARTEX_PORT=%s\nARTEX_PROXY_PORT=%s\n' "$PORT" "$PROXY_PORT" >> .env
+    fi
   fi
   ok "已生成 .env（Postgres 密码随机，存在 $DIR/.env，权限 600）"
 else
