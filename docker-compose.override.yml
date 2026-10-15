@@ -1,17 +1,21 @@
 # 汉化版覆盖配置（compose 会自动加载本文件）。
 #
-# 把 artex 服务指向本地构建的汉化镜像 artex-zh:local，其余（postgres、端口、
-# 卷、环境变量）沿用 docker-compose.yml。
+# 作用：
+#   1) 把 artex 服务指向汉化镜像 —— 默认用本地构建的 artex-zh:local；
+#      想用预编译镜像就把 ARTEX_ZH_IMAGE 设成 ghcr.io/linyueying/artex-zh-cn:latest
+#      （写进 .env 即可，install-zh.sh 会自动写）。
+#   2) 加 host.docker.internal —— 容器里的 127.0.0.1 是它自己，要访问宿主上的
+#      服务（如 LLM 反代 127.0.0.1:7863）必须走 host-gateway。
+#      不需要的话删掉 extra_hosts 两行即可，无副作用。
 #
-# 回滚：删掉本文件，然后
-#   cd /opt/artex && docker compose up -d --force-recreate artex
-# 即回到官方 ruoji6/artex:latest。
+# 其余（postgres、端口、卷、环境变量）沿用 docker-compose.yml。
+#
+# 回滚成官方版：删掉本文件，然后
+#   docker compose up -d --force-recreate artex
 services:
   artex:
-    image: artex-zh:local
-    # 本地镜像不在任何 registry 上，禁用拉取，避免 docker compose pull/up 报错。
-    pull_policy: never
-    # 容器里的 127.0.0.1 是它自己；要访问宿主上的 WorkBuddy 反代
-    # (127.0.0.1:7863) 必须走 host-gateway。
+    image: ${ARTEX_ZH_IMAGE:-artex-zh:local}
+    # 默认 pull_policy=missing：本地已有该镜像就不拉，没有才拉。
+    # 本地构建（artex-zh:local）与 GHCR 预编译镜像两种用法都适配。
     extra_hosts:
       - "host.docker.internal:host-gateway"
