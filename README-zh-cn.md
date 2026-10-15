@@ -2,20 +2,28 @@
 
 基于 [RuoJi6/ARTEX](https://github.com/RuoJi6/ARTEX) 的简体中文界面版本，锁定上游 **v0.3.21**。
 
-汉化改动在 `zh-cn` 分支（相对上游 `main` 的一个提交，45 个文件）。
+汉化改动在 `zh-cn` 分支：相对上游 `main` 的一个提交，45 个文件。
+**只改界面文案与 4 行日志，不改任何业务逻辑、API 契约与数据库结构** ——
+与官方版数据完全兼容，可随时来回切换。
 
 ---
 
 ## 一键部署（推荐）
 
-任意装了 Docker 的 Linux 服务器：
+任意一台装了 Docker 的 Linux 服务器：
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/Linyueying/ARTEX-zh-cn/zh-cn/install-zh.sh | bash
 ```
 
-脚本会：取仓库 → 生成 `.env`（随机 Postgres 密码）→ 拉预编译汉化镜像 → 启动 →
-打印访问地址。默认装到 `/opt/artex-zh`。
+默认装到 `/opt/artex-zh`。脚本按顺序尝试两条取镜像的路：
+
+| | 路径 | 耗时 | 前提 |
+|---|---|---|---|
+| **A** | 直接拉预编译镜像 `ghcr.io/linyueying/artex-zh-cn:latest` | 快 | GHCR 包需为 public（或先 `docker login ghcr.io`） |
+| **B** | 下载 [Releases](https://github.com/Linyueying/ARTEX-zh-cn/releases) 里的预编译二进制，本地秒级打成镜像 | ~1 分钟 | 能拉到官方基镜像 `ruoji6/artex` |
+
+A 失败会自动落到 B，**不需要 Go / Node，也不重新编译**。
 
 可用环境变量微调：
 
@@ -23,11 +31,14 @@ curl -fsSL https://raw.githubusercontent.com/Linyueying/ARTEX-zh-cn/zh-cn/instal
 |---|---|---|
 | `ARTEX_DIR` | `/opt/artex-zh` | 安装目录 |
 | `ARTEX_ZH_IMAGE` | `ghcr.io/linyueying/artex-zh-cn:latest` | 汉化镜像 |
+| `ARTEX_ZH_RELEASE` | `zh-0.3.21` | Release 标签（B 路径用） |
+| `ARTEX_ZH_SKIP_PULL` | 空 | 设 `1` 跳过 A 路径，直接走 B |
 | `ARTEX_PORT` | `8787` | 对外端口 |
+| `POSTGRES_PASSWORD` | 随机 | 数据库密码 |
 
 装完立刻做两件事：
 1. 打开 `http://<IP>:8787/setup` 设置管理员密码（用户名固定 `ARTEX`）。
-   **公网可达的机器请马上设，`/api/auth/init` 不需要任何凭证。**
+   **公网可达的机器请马上设 —— `/api/auth/init` 不需要任何凭证。**
 2. 配 LLM：页面「系统 → LLM」新建配置档，或填 `.env` 里的
    `ARTEX_LLM_PROVIDER` / `ARTEX_LLM_MODEL` / `ARTEX_LLM_BASE_URL` / `OPENAI_API_KEY`。
 
@@ -48,17 +59,18 @@ docker compose up -d
 
 `docker-compose.override.yml` 会把 `artex` 服务指向 `ARTEX_ZH_IMAGE`，
 其余（postgres、端口、卷）沿用上游的 `docker-compose.yml`。
+`ARTEX_ZH_IMAGE` 留空则用本地构建的 `artex-zh:local`。
 
 ### 方式三：本地自建镜像
 
-不想依赖 GHCR，或要改代码：
+要改代码、或不想依赖任何 registry：
 
 ```bash
 git clone -b zh-cn https://github.com/Linyueying/ARTEX-zh-cn.git
 cd ARTEX-zh-cn
 ./build-zh.sh          # 前端导出 → go:embed 编译 → 打成本地镜像 artex-zh:local
 cp .env.example .env   # 填 POSTGRES_PASSWORD
-docker compose up -d   # .env 里不设 ARTEX_ZH_IMAGE 就会用 artex-zh:local
+docker compose up -d
 ```
 
 `build-zh.sh` 全程在 Docker 里跑（宿主机不需要 Go / Node），约 7 分钟。
@@ -70,21 +82,31 @@ fallocate -l 4G /swapfile2 && chmod 600 /swapfile2 && mkswap /swapfile2 && swapo
 
 ### 方式四：非 Docker（单二进制 / systemd）
 
-`build-zh.sh` 产出的是**静态链接**二进制（`CGO_ENABLED=0`，不依赖任何 `.so`），
-可以直接裸跑，也可以交叉编译到其他平台：
+直接用 [Releases](https://github.com/Linyueying/ARTEX-zh-cn/releases) 里的
+`artex-0.3.21-zh-linux-amd64.zip`（或 `-arm64`）：
 
 ```bash
-# 在装了 Go 1.26.3+ 和 Node 22 的机器上
-cd web && npm ci && NEXT_EXPORT=1 npm run build && cd ..
-rm -rf server/webui/dist && mkdir -p server/webui && cp -r web/out server/webui/dist
-CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -tags embedui -o artex ./cmd/artex
-./start.sh          # 用 start.sh 启动（守护 + 一键更新靠它换装）
+unzip artex-0.3.21-zh-linux-amd64.zip && cd artex-0.3.21-zh-linux-amd64
+cp config.example.json config.json    # 填 PostgreSQL 连接
+./start.sh                            # → http://localhost:8787
 ```
 
+二进制是**静态链接**的（`CGO_ENABLED=0`），不依赖任何共享库。
+用 `start.sh` / `start.bat` 启动，别直接跑 `./artex` —— 守护脚本负责进程退出后重新
+拉起，页面上那个「一键更新」靠它完成换装。
+
 非 Docker 部署需要自己准备：
-- **PostgreSQL**（写进 `config.json` 的 `database` 或 `ARTEX_PG_DSN`）
+- **PostgreSQL**（写进 `config.json` 的 `database`，或用环境变量 `ARTEX_PG_DSN`）
 - **工具链**：`nmap` / `ripgrep` / `curl` / `git` / `jq` / `python3` / `node 22` /
   `playwright + chromium` —— 官方镜像里预装了这些，agent 的工具调用依赖它们
+
+要交叉编译其他平台（macOS / Windows / arm64）：
+
+```bash
+cd web && npm ci && NEXT_EXPORT=1 npm run build && cd ..
+rm -rf server/webui/dist && mkdir -p server/webui && cp -r web/out server/webui/dist
+CGO_ENABLED=0 GOOS=darwin GOARCH=arm64 go build -tags embedui -o artex ./cmd/artex
+```
 
 ---
 
@@ -135,5 +157,6 @@ docker compose up -d --force-recreate artex
 - 上游 [Autumn-27/ARTEX](https://github.com/Autumn-27/ARTEX) 已不可访问（404），
   本仓库基于仍在维护的二开版 [RuoJi6/ARTEX](https://github.com/RuoJi6/ARTEX)。
 - 许可证跟随上游 **AGPL-3.0**。
-- 汉化只改界面文案，**不改任何业务逻辑、API 契约与数据库结构** —— 与官方版数据
-  完全兼容，可以随时来回切换。
+- Docker 镜像基于官方镜像按 **digest 钉死**（`Dockerfile.zh` 里的
+  `ruoji6/artex:latest@sha256:5c550744…`），避免上游把 `latest` 指向新版本后
+  重建出「新运行时 + 旧二进制」的错配镜像。
