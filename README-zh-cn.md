@@ -18,12 +18,12 @@ curl -fsSL https://raw.githubusercontent.com/Linyueying/ARTEX-zh-cn/zh-cn/instal
 
 默认装到 `/opt/artex-zh`。脚本按顺序尝试两条取镜像的路：
 
-| | 路径 | 耗时 | 前提 |
+| | 路径 | 耗时 | 说明 |
 |---|---|---|---|
-| **A** | 直接拉预编译镜像 `ghcr.io/linyueying/artex-zh-cn:latest` | 快 | GHCR 包需为 public（或先 `docker login ghcr.io`） |
-| **B** | 下载 [Releases](https://github.com/Linyueying/ARTEX-zh-cn/releases) 里的预编译二进制，本地秒级打成镜像 | ~1 分钟 | 能拉到官方基镜像 `ruoji6/artex` |
+| **A** | 直接拉预编译镜像 `ghcr.io/linyueying/artex-zh-cn:latest` | 最快 | 公开镜像，**多架构**（linux/amd64 + linux/arm64），无需登录 |
+| **B** | 下载 [Releases](https://github.com/Linyueying/ARTEX-zh-cn/releases) 里的预编译二进制，本地秒级打成镜像 | ~1 分钟 | A 失败时自动降级；只需能拉官方基镜像 `ruoji6/artex` |
 
-A 失败会自动落到 B，**不需要 Go / Node，也不重新编译**。
+两条路都**不需要 Go / Node，也不重新编译**。
 
 可用环境变量微调：
 
@@ -125,6 +125,34 @@ license 等）；日期选择器改用 `date-fns` 的 zh-CN locale（原来输�
 品牌名（Anthropic / OpenAI / DeepSeek / Tavily / Telegram / Docker）、工具名
 （Bash / Edit / Write / WebFetch）、正则与 API 参数。这些在上游自己的中文文案里
 就是这么用的（侧边栏本来就是「LLM」「Agent」「Skill」），硬译反而更乱。
+
+---
+
+## 自动构建
+
+`zh-cn` 分支一有改动（前端 / 后端 / skills / 构建脚本），GitHub Actions 就会：
+
+1. 重新导出前端 → `go:embed` 交叉编译 amd64 + arm64 二进制
+2. 推送**多架构镜像**到 GHCR（标签 `latest` 与 `<版本>-zh`）
+3. 更新 Release `zh-<版本>` 里的预编译二进制与 zip
+
+也就是说：**改完 push，别的服务器 `docker compose pull` 就拿到新版本**，不用本地编译。
+
+改版本号只需动 `.github/workflows/zh-image.yml` 里的 `ARTEX_VERSION`。
+
+本地要手工做同样的事：
+
+```bash
+# 需要 Go 1.26.3+ 与 Node 22
+cd web && npm ci && NEXT_EXPORT=1 npm run build && cd ..
+rm -rf server/webui/dist && mkdir -p server/webui && cp -r web/out server/webui/dist
+for arch in amd64 arm64; do
+  mkdir -p dist/$arch
+  CGO_ENABLED=0 GOOS=linux GOARCH=$arch go build -tags embedui \
+    -ldflags "-s -w -buildid= -X main.version=0.3.21" -o dist/$arch/artex ./cmd/artex
+done
+./package-zh.sh 0.3.21        # 产出 dist/release/（裸二进制 + zip + SHA256SUMS）
+```
 
 ---
 

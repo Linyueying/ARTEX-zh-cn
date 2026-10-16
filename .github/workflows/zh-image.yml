@@ -1,7 +1,9 @@
 name: build-zh-image
 
-# 汉化镜像自动构建：zh-cn 分支有改动就重新编译并推到 GHCR。
-# 用 Actions 自带的 GITHUB_TOKEN（声明 packages: write），不需要任何 PAT。
+# 汉化版自动发布：zh-cn 分支有改动就重新编译，然后
+#   1) 推送多架构镜像（linux/amd64 + linux/arm64）到 GHCR
+#   2) 更新 Release 里的预编译二进制与官方风格 zip
+# 全程用 Actions 自带的 GITHUB_TOKEN，不需要任何 PAT。
 on:
   push:
     branches: [zh-cn]
@@ -23,25 +25,29 @@ on:
       - "enrich/**"
       - "mcphttp/**"
       - "sidequestion/**"
+      - "skills/**"
       - "go.mod"
       - "go.sum"
       - "Dockerfile.zh"
       - "build-zh.sh"
+      - "package-zh.sh"
+      - "install-zh.sh"
       - "docker-compose.yml"
       - "docker-compose.override.yml"
       - ".github/workflows/zh-image.yml"
   workflow_dispatch:
 
 permissions:
-  contents: read
-  packages: write
+  contents: write # 更新 Release 资产
+  packages: write # 推 GHCR 镜像
 
 env:
-  # 与上游对齐的版本号（会写进二进制，页面 /api/health 显示它）
+  # 与上游对齐的版本号（写进二进制，页面 /api/health 显示它）。
+  # 同步上游新版本时改这里。
   ARTEX_VERSION: "0.3.21"
 
 jobs:
-  image:
+  build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -63,16 +69,26 @@ jobs:
           go-version-file: go.mod
           cache-dependency-path: go.sum
 
-      - name: 放入 go:embed 目录并编译单二进制
+      - name: 放入 go:embed 目录并交叉编译 amd64 / arm64
         run: |
           set -eux
           rm -rf server/webui/dist
-          mkdir -p server/webui dist/amd64
+          mkdir -p server/webui
           cp -r web/out server/webui/dist
-          CGO_ENABLED=0 go build -tags embedui \
-            -ldflags "-s -w -buildid= -X main.version=${ARTEX_VERSION}" \
-            -o dist/amd64/artex ./cmd/artex
-          ls -la dist/amd64/artex
+          for arch in amd64 arm64; do
+            mkdir -p "dist/${arch}"
+            CGO_ENABLED=0 GOOS=linux GOARCH="${arch}" go build -tags embedui \
+              -ldflags "-s -w -buildid= -X main.version=${ARTEX_VERSION}" \
+              -o "dist/${arch}/artex" ./cmd/artex
+            ls -la "dist/${arch}/artex"
+          done
+
+      - name: 计算镜像名（GHCR 要求全小写）
+        id: img
+        run: echo "name=ghcr.io/$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')/artex-zh-cn" >> "$GITHUB_OUTPUT"
+
+      - uses: docker/setup-qemu-action@v3
+      - uses: docker/setup-buildx-action@v3
 
       - uses: docker/login-action@v3
         with:
@@ -80,26 +96,41 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: 构建并推送镜像
+      - name: 构建并推送多架构镜像
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: Dockerfile.zh
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: |
+            ${{ steps.img.outputs.name }}:latest
+            ${{ steps.img.outputs.name }}:${{ env.ARTEX_VERSION }}-zh
+
+      - name: 打包 Release 资产
+        run: ./package-zh.sh
+
+      - name: 更新 Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -eux
-          OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
-          IMAGE="ghcr.io/${OWNER}/artex-zh-cn"
-          SHA=$(git rev-parse --short HEAD)
-          docker build -f Dockerfile.zh \
-            -t "${IMAGE}:latest" \
-            -t "${IMAGE}:${ARTEX_VERSION}-zh" \
-            -t "${IMAGE}:sha-${SHA}" \
-            .
-          docker push --all-tags "${IMAGE}"
+          TAG="zh-${ARTEX_VERSION}"
+          if ! gh release view "$TAG" >/dev/null 2>&1; then
+            gh release create "$TAG" \
+              --title "ARTEX 汉化版 v${ARTEX_VERSION}" \
+              --notes "自动构建。镜像 \`${{ steps.img.outputs.name }}:latest\`；一键部署与说明见仓库的 README-zh-cn.md。"
+          fi
+          gh release upload "$TAG" dist/release/* --clobber
 
       - name: 摘要
         run: |
           {
-            echo "### 汉化镜像已推送"
+            echo "### 汉化版已发布"
             echo
             echo '```'
-            echo "ghcr.io/$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')/artex-zh-cn:latest"
-            echo "版本标签：${ARTEX_VERSION}-zh"
+            echo "${{ steps.img.outputs.name }}:latest"
+            echo "${{ steps.img.outputs.name }}:${ARTEX_VERSION}-zh"
+            echo "Release: zh-${ARTEX_VERSION}"
             echo '```'
           } >> "$GITHUB_STEP_SUMMARY"
